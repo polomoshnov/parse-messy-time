@@ -13,8 +13,48 @@ console.log(parse(q));
 output:
 
 ```
+$ date; cal
+Tue Apr 14 12:20:12 PDT 2015
+     April 2015       
+Su Mo Tu We Th Fr Sa  
+          1  2  3  4  
+ 5  6  7  8  9 10 11  
+12 13 14 15 16 17 18  
+19 20 21 22 23 24 25  
+26 27 28 29 30        
+                      
 $ node parse.js last wednesday
-{ date: 8, month: 'April' }
-$ node parse.js oct 22nd 1987 3pm
-{ date: 22, month: 'October', year: 1987, hours: 15 }
+Wed Apr 08 2015 00:00:00 GMT-0700 (PDT)
+$ node parse.js 9pm on the 4th of july 1988
+Mon Jul 04 1988 21:00:00 GMT-0700 (PDT)
+$ node parse.js next friday
+Fri Apr 24 2015 00:00:00 GMT-0700 (PDT)
+$ node parse.js this friday
+Fri Apr 17 2015 00:00:00 GMT-0700 (PDT)
+$ node parse.js 6 am tomorrow
+Wed Apr 15 2015 06:00:00 GMT-0700 (PDT)
 ```
+
+# methods
+
+``` js
+var parse = require('parse-messy-time')
+```
+
+## var d = parse(str, opts)
+
+Parse `str`, returning a Date instance `d`.
+
+* `opts.now` - interpret `str` with respect to `opts.now`, default `Date.now()`
+
+# install
+
+With [npm](https://npmjs.org) do:
+
+```
+npm install parse-messy-time
+```
+
+# license
+
+MIT
