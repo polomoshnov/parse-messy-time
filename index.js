@@ -88,21 +88,18 @@ module.exports = function (str, opts) {
                 res.month = months[tomorrow.getMonth()];
             }
         }
-        else if (t === 'this' && dayish(next)) {
+        else if (t === 'this' && dayish(next) && res.date === undefined) {
+            setFromDay(t, 0);
         }
-        else if (t === 'next' && dayish(next)) {
+        else if (t === 'next' && dayish(next) && res.date === undefined) {
+            setFromDay(t, 7);
         }
-        else if (t === 'last' && dayish(next)) {
+        else if (t === 'last' && dayish(next) && res.date === undefined) {
+            setFromDay(t, -7);
         }
         else if (dayish(t) && res.date === undefined
         && res.month === undefined) {
-            var dayi = days.indexOf(nday(t));
-            var xdays = (7 + dayi - now.getDay()) % 7;
-            var d = new Date(now.valueOf() + xdays*24*60*60*1000);
-            res.date = d.getDate();
-            if (res.month === undefined) {
-                res.month = months[d.getMonth()];
-            }
+            setFromDay(t, 0);
         }
     }
     
@@ -116,6 +113,16 @@ module.exports = function (str, opts) {
     }
     if (res.month) res.month = nmonth(res.month);
     return res;
+    
+    function setFromDay (t, x) {
+        var dayi = days.indexOf(nday(t));
+        var xdays = (6 + dayi - now.getDay()) % 7 + x;
+        var d = new Date(midnight(now).valueOf() + xdays*24*60*60*1000);
+        res.date = d.getDate();
+        if (res.month === undefined) {
+            res.month = months[d.getMonth()];
+        }
+    }
 };
 
 function lc (s) { return String(s).toLowerCase() }
@@ -151,4 +158,12 @@ function nday (s) {
     if (/^fri/i.test(s)) return 'Friday';
     if (/^sat/i.test(s)) return 'Saturday';
     if (/^sun/i.test(s)) return 'Sunday';
+}
+
+function midnight (m) {
+    var d = new Date(m);
+    d.setHours(0);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    return d;
 }
