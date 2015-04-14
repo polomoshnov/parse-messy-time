@@ -69,5 +69,17 @@ test('parse dates', function (t) {
         strftime('%F %T', parse('oct 22nd 1987')),
         '1987-10-22 00:00:00'
     );
+    t.deepEqual(
+        strftime('%F %T', parse('3pm oct 22nd 1987')),
+        '1987-10-22 15:00:00'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('oct 22nd 1987 6am')),
+        '1987-10-22 06:00:00'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('the 22nd of october, 1987 at 7pm')),
+        '1987-10-22 19:00:00'
+    );
     t.end();
 });
