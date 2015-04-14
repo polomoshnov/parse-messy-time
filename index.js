@@ -1,4 +1,11 @@
-var months = require('months');
+var months = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December'
+];
+var days = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+];
+
 var tokre = RegExp(
     '\\s+|(\\d+(?:th|nd|rd|th))'
     + '|(\\d+(?:[:h]\\d+(?:[:m]\\d+s?)?)?)([A-Za-z]+)'
@@ -81,6 +88,22 @@ module.exports = function (str, opts) {
                 res.month = months[tomorrow.getMonth()];
             }
         }
+        else if (t === 'this' && dayish(next)) {
+        }
+        else if (t === 'next' && dayish(next)) {
+        }
+        else if (t === 'last' && dayish(next)) {
+        }
+        else if (dayish(t) && res.date === undefined
+        && res.month === undefined) {
+            var dayi = days.indexOf(nday(t));
+            var xdays = (7 + dayi - now.getDay()) % 7;
+            var d = new Date(now.valueOf() + xdays*24*60*60*1000);
+            res.date = d.getDate();
+            if (res.month === undefined) {
+                res.month = months[d.getMonth()];
+            }
+        }
     }
     
     if (res.year < 100) {
@@ -101,6 +124,10 @@ function monthish (s) {
     return /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(s);
 }
 
+function dayish (s) {
+    return /^(mon|tue|wed|thu|fri|sat|sun)/i.test(s);
+}
+
 function nmonth (s) {
     if (/^jan/i.test(s)) return 'January';
     if (/^feb/i.test(s)) return 'February';
@@ -114,4 +141,14 @@ function nmonth (s) {
     if (/^oct/i.test(s)) return 'October';
     if (/^nov/i.test(s)) return 'November';
     if (/^dec/i.test(s)) return 'December';
+}
+
+function nday (s) {
+    if (/^mon/i.test(s)) return 'Monday';
+    if (/^tue/i.test(s)) return 'Tuesday';
+    if (/^wed/i.test(s)) return 'Wednesday';
+    if (/^thu/i.test(s)) return 'Thursday';
+    if (/^fri/i.test(s)) return 'Friday';
+    if (/^sat/i.test(s)) return 'Saturday';
+    if (/^sun/i.test(s)) return 'Sunday';
 }
