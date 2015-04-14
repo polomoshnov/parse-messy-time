@@ -54,5 +54,10 @@ test('parse dates', function (t) {
         date: 7,
         month: 'April'
     });
+    t.deepEqual(parse('oct 22nd 1987', {
+        date: 22,
+        month: 'October',
+        year: 1987
+    }));
     t.end();
 });
