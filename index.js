@@ -36,7 +36,7 @@ module.exports = function (str, opts) {
         else if (/\d+[:h]\d+/.test(t) || /^(am|pm)/.test(next)) {
             m = /(\d+)(?:[:h](\d+)(?:[:m](\d+s?\.?\d*))?)?/.exec(t);
             res.hours = Number(m[1]);
-            if (/^pm/.test(next)) res.hours += 12;
+            if (/^pm/.test(next) && res.hours < 12) res.hours += 12;
             if (m[2]) res.minutes = Number(m[2]);
             if (m[3]) res.seconds = Number(m[3]);
             // time
@@ -87,6 +87,9 @@ module.exports = function (str, opts) {
             if (res.month === undefined) {
                 res.month = months[tomorrow.getMonth()];
             }
+            if (res.year === undefined) {
+                res.year = tomorrow.getFullYear();
+            }
         }
         else if (t === 'next' && dayish(next) && res.date === undefined) {
             setFromDay(next, 7);
@@ -110,7 +113,16 @@ module.exports = function (str, opts) {
         else res.year += y - py;
     }
     if (res.month) res.month = nmonth(res.month);
-    return res;
+    
+    var out = new Date;
+    out.setHours(res.hours === undefined ? 0 : res.hours);
+    out.setMinutes(res.minutes === undefined ? 0 : res.minutes);
+    out.setSeconds(res.seconds === undefined ? 0 : res.seconds);
+    
+    if (res.date) out.setDate(res.date);
+    if (res.month) out.setMonth(months.indexOf(res.month));
+    if (res.year) out.setYear(res.year);
+    return out;
     
     function setFromDay (t, x) {
         var dayi = days.indexOf(nday(t));
@@ -119,6 +131,9 @@ module.exports = function (str, opts) {
         res.date = d.getDate();
         if (res.month === undefined) {
             res.month = months[d.getMonth()];
+        }
+        if (res.year === undefined) {
+            res.year = d.getFullYear();
         }
     }
 };
