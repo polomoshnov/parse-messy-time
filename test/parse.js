@@ -46,5 +46,13 @@ test('parse dates', function (t) {
         date: 27,
         month: 'April'
     });
+    t.deepEqual(parse('last monday', { now: new Date(1429033187172) }), {
+        date: 13,
+        month: 'April'
+    });
+    t.deepEqual(parse('last tuesday', { now: new Date(1429033187172) }), {
+        date: 7,
+        month: 'April'
+    });
     t.end();
 });
