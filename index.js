@@ -21,7 +21,7 @@ module.exports = function (str, opts) {
                 next = tokens[i+2];
                 i++;
             }
-            res.day = Number(m[1]);
+            res.date = Number(m[1]);
             if (monthish(next)) {
                 res.month = next;
             }
@@ -37,44 +37,46 @@ module.exports = function (str, opts) {
         else if (/^\d+/.test(t) && monthish(next)) {
             var x = Number(t);
             if (res.year === undefined && x > 31) res.year = x;
-            else if (res.day === undefined) res.day = x;
+            else if (res.date === undefined) res.date = x;
             if (res.month === undefined) res.month = next;
+            i++;
         }
         else if (monthish(t) && /^\d+/.test(next)) {
             var x = Number(next);
             if (res.year === undefined && x > 31) res.year = x;
-            else if (res.day === undefined) res.day = x;
+            else if (res.date === undefined) res.date = x;
             if (res.month === undefined) res.month = t;
+            i++;
         }
         else if ((m = /^(\d+)/.exec(t)) && monthish(prev)) {
             var x = Number(m[1]);
             if (res.year === undefined) res.year = x;
-            else if (res.hour === undefined) res.hour = x;
+            else if (res.hours === undefined) res.hours = x;
         }
         else if (m = /^[`'\u00b4\u2019](\d+)/.exec(t)) {
             res.year = Number(m[1]);
         }
         else if (m = /^(\d+)/.exec(t)) {
             var x = Number(m[1]);
-            if (res.hour === undefined && x < 24) res.hour = x;
-            else if (res.day === undefined && x <= 31) res.day = x;
+            if (res.hours === undefined && x < 24) res.hours = x;
+            else if (res.date === undefined && x <= 31) res.date = x;
             else if (res.year === undefined && x > 31) res.year = x;
             else if (res.year == undefined
-            && res.hour !== undefined && res.day !== undefined) {
+            && res.hours !== undefined && res.date !== undefined) {
                 res.year = x;
             }
-            else if (res.hour === undefined
-            && res.day !== undefined && res.year !== undefined) {
-                res.hour = x;
+            else if (res.hours === undefined
+            && res.date !== undefined && res.year !== undefined) {
+                res.hours = x;
             }
-            else if (res.day === undefined
-            && res.hour !== undefined && res.year !== undefined) {
-                res.day = x;
+            else if (res.date === undefined
+            && res.hours !== undefined && res.year !== undefined) {
+                res.date = x;
             }
         }
-        else if (/^to?m+o?r+o?w?/.test(t) && res.day === undefined) {
+        else if (/^to?m+o?r+o?w?/.test(t) && res.date === undefined) {
             var tomorrow = new Date(now.valueOf() + 24*60*60*1000);
-            res.day = tomorrow.getDate();
+            res.date = tomorrow.getDate();
             if (res.month === undefined) {
                 res.month = months[tomorrow.getMonth()];
             }
@@ -89,6 +91,7 @@ module.exports = function (str, opts) {
         }
         else res.year += y - py;
     }
+    if (res.month) res.month = nmonth(res.month);
     return res;
 };
 
@@ -96,4 +99,19 @@ function lc (s) { return String(s).toLowerCase() }
 
 function monthish (s) {
     return /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(s);
+}
+
+function nmonth (s) {
+    if (/^jan/i.test(s)) return 'January';
+    if (/^feb/i.test(s)) return 'February';
+    if (/^mar/i.test(s)) return 'March';
+    if (/^apr/i.test(s)) return 'April';
+    if (/^may/i.test(s)) return 'May';
+    if (/^jun/i.test(s)) return 'June';
+    if (/^jul/i.test(s)) return 'July';
+    if (/^aug/i.test(s)) return 'August';
+    if (/^sep/i.test(s)) return 'September';
+    if (/^oct/i.test(s)) return 'October';
+    if (/^nov/i.test(s)) return 'November';
+    if (/^dec/i.test(s)) return 'December';
 }
