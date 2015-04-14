@@ -34,9 +34,17 @@ test('parse dates', function (t) {
         date: 24,
         month: 'April'
     });
+    t.deepEqual(parse('monday', { now: new Date(1429032952407) }), {
+        date: 20,
+        month: 'April'
+    });
     t.deepEqual(parse('next friday', { now: new Date(1429721563259) }), {
         date: 1,
         month: 'May'
+    });
+    t.deepEqual(parse('next monday', { now: new Date(1429033187172) }), {
+        date: 27,
+        month: 'April'
     });
     t.end();
 });
