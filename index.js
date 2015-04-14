@@ -41,15 +41,15 @@ module.exports = function (str, opts) {
             if (m[3]) res.seconds = Number(m[3]);
             // time
         }
-        else if (/^\d+/.test(t) && monthish(next)) {
-            var x = Number(t);
+        else if ((m = /^(\d+)/.exec(t)) && monthish(next)) {
+            var x = Number(m[1]);
             if (res.year === undefined && x > 31) res.year = x;
             else if (res.date === undefined) res.date = x;
             if (res.month === undefined) res.month = next;
             i++;
         }
-        else if (monthish(t) && /^\d+/.test(next)) {
-            var x = Number(next);
+        else if (monthish(t) && (m = /^(\d+)/.exec(next))) {
+            var x = Number(m[1]);
             if (res.year === undefined && x > 31) res.year = x;
             else if (res.date === undefined) res.date = x;
             if (res.month === undefined) res.month = t;
