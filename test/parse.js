@@ -122,5 +122,35 @@ test('parse dates', function (t) {
         '2015-04-15 05:58:01',
         'in 20.2h'
     );
+    t.deepEqual(
+        strftime('%F %T', parse('in 5 weeks', optsd)),
+        '2015-05-19 09:46:01',
+        'in 5 weeks'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 2 years', optsd)),
+        '2017-04-14 09:46:01',
+        'in 2 years'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 2 years and 5 weeks', optsd)),
+        '2017-05-19 09:46:01',
+        'in 2 years and 5 weeks'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 1.5 weeks', optsd)),
+        '2015-04-24 09:46:01',
+        'in 1.5 weeks'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('2 days ago', optsd)),
+        '2015-04-12 09:46:01',
+        '2 days ago'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('2 days and 6 hours ago', optsd)),
+        '2015-04-12 03:46:01',
+        '2 days and 6 hours ago'
+    );
     t.end();
 });

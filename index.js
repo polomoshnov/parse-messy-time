@@ -37,14 +37,16 @@ module.exports = function (str, opts) {
             }
         }
         else if ((m = hmsre.exec(t)) && isunit(next)) {
-            var hms = parseh(t);
-            var u = nunit(next);
             if (tokens[i-1] === 'in') {
                 for (var j = i; j < tokens.length; j += 2) {
                     if (tokens[j] === 'and') j --;
                     else if ((m = hmsre.exec(tokens[j]))
-                    && isunit(tokens[j+1])) {
+                    && ishunit(tokens[j+1])) {
                         addu(parseh(tokens[j]), nunit(tokens[j+1]));
+                    }
+                    else if ((m = /^(\d+\.?\d*)/.exec(tokens[j]))
+                    && isdunit(tokens[j+1])) {
+                        daddu(Number(m[1]), nunit(tokens[j+1]));
                     }
                     else break;
                 }
@@ -57,8 +59,12 @@ module.exports = function (str, opts) {
                 if (j === tokens.length) continue;
                 
                 for (var k = i; k < j; k++) {
-                    if ((m = hmsre.exec(tokens[k])) && isunit(tokens[k+1])) {
+                    if ((m = hmsre.exec(tokens[k])) && ishunit(tokens[k+1])) {
                         subu(parseh(tokens[k]), nunit(tokens[k+1]));
+                    }
+                    else if ((m = /^(\d+\.?\d*)/.exec(tokens[k]))
+                    && isdunit(tokens[k+1])) {
+                        dsubu(Number(m[1]), nunit(tokens[k+1]));
                     }
                 }
                 i = j;
@@ -148,7 +154,8 @@ module.exports = function (str, opts) {
     out.setMinutes(res.minutes === undefined ? 0 : res.minutes);
     out.setSeconds(res.seconds === undefined ? 0 : res.seconds);
     if (res.date) out.setDate(res.date);
-    if (res.month) out.setMonth(months.indexOf(res.month));
+    if (typeof res.month === 'number') out.setMonth(res.month);
+    else if (res.month) out.setMonth(months.indexOf(res.month));
     if (res.year) out.setYear(res.year);
     return out;
     
@@ -182,12 +189,43 @@ module.exports = function (str, opts) {
             res.seconds = op(now.getSeconds(), hms[0] === null ? 0 : hms[0]);
         }
     }
-    function subu (hms, u) { opu(hms, u, function (a, b) { return a - b }) }
-    function addu (hms, u) { opu(hms, u, function (a, b) { return a + b }) }
+    function subu (hms, u) { opu(hms, u, sub) }
+    function addu (hms, u) { opu(hms, u, add) }
+    
+    function dopu (n, u, op) {
+        if (res.hours === undefined) res.hours = now.getHours();
+        if (res.minutes === undefined) res.minutes = now.getMinutes();
+        if (res.seconds === undefined) res.seconds = now.getSeconds();
+        if (u === 'days') {
+            res.date = op(now.getDate(), n);
+        }
+        else if (u === 'weeks') {
+            res.date = op(now.getDate(), n*7);
+        }
+        else if (u === 'months') {
+            res.month = op(now.getMonth(), n);
+        }
+        else if (u === 'years') {
+            res.year = op(now.getFullYear(), n);
+        }
+    }
+    function dsubu (n, u) { dopu(n, u, sub) }
+    function daddu (n, u) { dopu(n, u, add) }
 };
+
+function add (a, b) { return a + b }
+function sub (a, b) { return a - b }
 
 function lc (s) { return String(s).toLowerCase() }
 
+function ishunit (s) {
+    var n = nunit(s);
+    return n === 'hours' || n === 'minutes' || n === 'seconds';
+}
+function isdunit (s) {
+    var n = nunit(s);
+    return n === 'days' || n === 'weeks' || n === 'months' || n === 'years';
+}
 function isunit (s) { return Boolean(nunit(s)) }
 
 function nunit (s) {
