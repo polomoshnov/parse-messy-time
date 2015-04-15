@@ -5,6 +5,8 @@ var strftime = require('strftime');
 
 test('parse dates', function (t) {
     var tomorrow = new Date((new Date).valueOf() + 24*60*60*1000);
+    
+    // Tue Apr 14 2015 19:41:54 GMT-0700 (PDT)
     var optsd = { now: new Date(1429029961000) };
     
     t.deepEqual(strftime('%T', parse('11am')), '11:00:00');
@@ -89,6 +91,26 @@ test('parse dates', function (t) {
     t.deepEqual(
         strftime('%F %T', parse('9pm on the 4th of july', optsd)),
         '2015-07-04 21:00:00'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 12 minutes', optsd)),
+        '2015-04-14 19:53:54'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 2 hours', optsd)),
+        '2015-04-14 21:41:54'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 31 hours', optsd)),
+        '2015-04-16 02:41:54'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 20 hours 40 minutes', optsd)),
+        '2015-04-15 16:21:54'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('in 20 hours and 40 minutes', optsd)),
+        '2015-04-15 16:21:54'
     );
     t.end();
 });
