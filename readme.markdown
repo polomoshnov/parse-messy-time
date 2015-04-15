@@ -33,6 +33,10 @@ $ node parse.js this friday
 Fri Apr 17 2015 00:00:00 GMT-0700 (PDT)
 $ node parse.js 6 am tomorrow
 Wed Apr 15 2015 06:00:00 GMT-0700 (PDT)
+$ node parse.js in 2hrs 50 minutes
+Tue Apr 14 2015 15:10:12 GMT-0700 (PDT)
+$ node parse.js 2.5 hours ago
+Tue Apr 14 2015 09:50:12 GMT-0700 (PDT)
 ```
 
 # methods
