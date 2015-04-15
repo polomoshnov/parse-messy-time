@@ -116,6 +116,19 @@ module.exports = function (str, opts) {
                 res.date = x;
             }
         }
+        else if (/^today$/.test(t) && res.date === undefined) {
+            res.date = now.getDate();
+            res.month = months[now.getMonth()];
+            res.year = now.getFullYear();
+        }
+        else if (/^now$/.test(t) && res.date === undefined) {
+            res.hours = now.getHours();
+            res.minutes = now.getMinutes();
+            res.seconds = now.getSeconds();
+            res.date = now.getDate();
+            res.month = months[now.getMonth()];
+            res.year = now.getFullYear();
+        }
         else if (/^to?m+o?r+o?w?/.test(t) && res.date === undefined) {
             var tomorrow = new Date(now.valueOf() + 24*60*60*1000);
             res.date = tomorrow.getDate();

@@ -167,5 +167,15 @@ test('parse dates', function (t) {
         '2015-04-13 08:00:00',
         'yesterday'
     );
+    t.equal(
+        strftime('%F %T', parse('today at 8am', optsd)),
+        '2015-04-14 08:00:00',
+        'today at 8am'
+    );
+    t.equal(
+        strftime('%F %T', parse('now', optsd)),
+        '2015-04-14 09:46:01',
+        'now'
+    );
     t.end();
 });
