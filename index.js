@@ -126,6 +126,16 @@ module.exports = function (str, opts) {
                 res.year = tomorrow.getFullYear();
             }
         }
+        else if (/^yesterday/.test(t) && res.date === undefined) {
+            var yst = new Date(now.valueOf() - 24*60*60*1000);
+            res.date = yst.getDate();
+            if (res.month === undefined) {
+                res.month = months[yst.getMonth()];
+            }
+            if (res.year === undefined) {
+                res.year = yst.getFullYear();
+            }
+        }
         else if (t === 'next' && dayish(next) && res.date === undefined) {
             setFromDay(next, 7);
             i++;
@@ -210,7 +220,6 @@ module.exports = function (str, opts) {
         }
         else if (u === 'months') {
             res.month = op(now.getMonth(), n);
-console.log('SET', res.month, res); 
         }
         else if (u === 'years') {
             res.year = op(now.getFullYear(), n);

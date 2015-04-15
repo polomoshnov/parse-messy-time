@@ -157,5 +157,15 @@ test('parse dates', function (t) {
         '2015-03-14 09:46:01',
         '1 month ago'
     );
+    t.deepEqual(
+        strftime('%F %T', parse('yesterday', optsd)),
+        '2015-04-13 00:00:00',
+        'yesterday'
+    );
+    t.deepEqual(
+        strftime('%F %T', parse('yesterday at 8am', optsd)),
+        '2015-04-13 08:00:00',
+        'yesterday'
+    );
     t.end();
 });
