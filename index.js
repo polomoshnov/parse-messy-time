@@ -147,15 +147,21 @@ module.exports = function (str, opts) {
         }
         else res.year += y - py;
     }
-    if (res.month) res.month = nmonth(res.month);
+    if (res.month && typeof res.month !== 'number') {
+        res.month = nmonth(res.month);
+    }
     
     var out = new Date(now);
     out.setHours(res.hours === undefined ? 0 : res.hours);
     out.setMinutes(res.minutes === undefined ? 0 : res.minutes);
     out.setSeconds(res.seconds === undefined ? 0 : res.seconds);
     if (res.date) out.setDate(res.date);
-    if (typeof res.month === 'number') out.setMonth(res.month);
+    
+    if (typeof res.month === 'number') {
+        out.setMonth(res.month);
+    }
     else if (res.month) out.setMonth(months.indexOf(res.month));
+    
     if (res.year) out.setYear(res.year);
     return out;
     
@@ -204,6 +210,7 @@ module.exports = function (str, opts) {
         }
         else if (u === 'months') {
             res.month = op(now.getMonth(), n);
+console.log('SET', res.month, res); 
         }
         else if (u === 'years') {
             res.year = op(now.getFullYear(), n);

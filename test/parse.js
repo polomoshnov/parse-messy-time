@@ -152,5 +152,10 @@ test('parse dates', function (t) {
         '2015-04-12 03:46:01',
         '2 days and 6 hours ago'
     );
+    t.deepEqual(
+        strftime('%F %T', parse('1 month ago', optsd)),
+        '2015-03-14 09:46:01',
+        '1 month ago'
+    );
     t.end();
 });
