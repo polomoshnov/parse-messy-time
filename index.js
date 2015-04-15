@@ -6,10 +6,13 @@ var days = [
     'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 ];
 
+var hmsre = RegExp(
+    '(\\d+\\.?\\d*(?:[:h]\\d+\\.?\\d*(?:[:m]\\d+\\.\\d*s?)?)?)'
+);
 var tokre = RegExp(
     '\\s+|(\\d+(?:th|nd|rd|th))'
-    + '|(\\d+(?:[:h]\\d+(?:[:m]\\d+s?)?)?)([A-Za-z]+)'
-    + '|([A-Za-z]+)(\\d+(?:[:h]\\d+(?:[:m]\\d+s?)?)?)'
+    + '|' + hmsre.source + '([A-Za-z]+)'
+    + '|([A-Za-z]+)' + hmsre.source
 );
 
 module.exports = function (str, opts) {
@@ -33,13 +36,39 @@ module.exports = function (str, opts) {
                 res.month = next;
             }
         }
+        else if ((m = hmsre.exec(t)) && isunit(next)) {
+            var hms = parseh(t);
+            var u = nunit(next);
+            if (tokens[i-1] === 'in') {
+                for (var j = i; j < tokens.length; j += 2) {
+                    if (tokens[j] === 'and') j --;
+                    else if ((m = hmsre.exec(tokens[j]))
+                    && isunit(tokens[j+1])) {
+                        addu(parseh(tokens[j]), nunit(tokens[j+1]));
+                    }
+                    else break;
+                }
+                i = j;
+            }
+            else {
+                for (var j = i + 2; j < tokens.length; j++) {
+                    if (tokens[j] === 'ago') break;
+                }
+                if (j === tokens.length) continue;
+                
+                for (var k = i; k < j; k++) {
+                    if ((m = hmsre.exec(tokens[k])) && isunit(tokens[k+1])) {
+                        subu(parseh(tokens[k]), nunit(tokens[k+1]));
+                    }
+                }
+                i = j;
+            }
+        }
         else if (/\d+[:h]\d+/.test(t) || /^(am|pm)/.test(next)) {
-            m = /(\d+)(?:[:h](\d+)(?:[:m](\d+s?\.?\d*))?)?/.exec(t);
-            res.hours = Number(m[1]);
-            if (/^pm/.test(next) && res.hours < 12) res.hours += 12;
-            if (m[2]) res.minutes = Number(m[2]);
-            if (m[3]) res.seconds = Number(m[3]);
-            // time
+            var hms = parseh(t, next);
+            if (hms[0] !== null) res.hours = hms[0];
+            if (hms[1] !== null) res.minutes = hms[1];
+            if (hms[2] !== null) res.seconds = hms[2];
         }
         else if ((m = /^(\d+)/.exec(t)) && monthish(next)) {
             var x = Number(m[1]);
@@ -114,11 +143,10 @@ module.exports = function (str, opts) {
     }
     if (res.month) res.month = nmonth(res.month);
     
-    var out = new Date;
+    var out = new Date(now);
     out.setHours(res.hours === undefined ? 0 : res.hours);
     out.setMinutes(res.minutes === undefined ? 0 : res.minutes);
     out.setSeconds(res.seconds === undefined ? 0 : res.seconds);
-    
     if (res.date) out.setDate(res.date);
     if (res.month) out.setMonth(months.indexOf(res.month));
     if (res.year) out.setYear(res.year);
@@ -136,13 +164,44 @@ module.exports = function (str, opts) {
             res.year = d.getFullYear();
         }
     }
+    
+    function opu (hms, u, op) {
+        if (u == 'hours') {
+            res.hours = op(now.getHours(), hms[0]);
+            res.minutes = op(now.getMinutes(), hms[1] === null ? 0 : hms[1]);
+            res.seconds = op(now.getSeconds(), hms[2] === null ? 0 : hms[2]);
+        }
+        else if (u == 'minutes') {
+            if (res.hours === undefined) res.hours = now.getHours();
+            res.minutes = op(now.getMinutes(), hms[0] === null ? 0 : hms[0]);
+            res.seconds = op(now.getSeconds(), hms[1] === null ? 0 : hms[1]);
+        }
+        else if (u == 'seconds') {
+            if (res.hours === undefined) res.hours = now.getHours();
+            if (res.minutes === undefined) res.minutes = now.getMinutes();
+            res.seconds = op(now.getSeconds(), hms[0] === null ? 0 : hms[0]);
+        }
+    }
+    function subu (hms, u) { opu(hms, u, function (a, b) { return a - b }) }
+    function addu (hms, u) { opu(hms, u, function (a, b) { return a + b }) }
 };
 
 function lc (s) { return String(s).toLowerCase() }
 
-function monthish (s) {
-    return /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(s);
+function isunit (s) { return Boolean(nunit(s)) }
+
+function nunit (s) {
+    if (/^(ms|millisecs?|milliseconds?)$/.test(s)) return 'milliseconds';
+    if (/^(s|secs?|seconds?)$/.test(s)) return 'seconds';
+    if (/^(m|mins?|minutes?)$/.test(s)) return 'minutes';
+    if (/^(h|hrs?|hours?)$/.test(s)) return 'hours';
+    if (/^(d|days?)$/.test(s)) return 'days';
+    if (/^(w|wks?|weeks?)$/.test(s)) return 'weeks';
+    if (/^(mo|mnths?|months?)$/.test(s)) return 'months';
+    if (/^(y|yrs?|years?)$/.test(s)) return 'years';
 }
+
+function monthish (s) { return Boolean(nmonth(s)) }
 
 function dayish (s) {
     return /^(mon|tue|wed|thu|fri|sat|sun)/i.test(s);
@@ -171,4 +230,25 @@ function nday (s) {
     if (/^fri/i.test(s)) return 'Friday';
     if (/^sat/i.test(s)) return 'Saturday';
     if (/^sun/i.test(s)) return 'Sunday';
+}
+
+function parseh (s, next) {
+    var m = /(\d+\.?\d*)(?:[:h](\d+\.?\d*)(?:[:m](\d+\.?\d*s?\.?\d*))?)?/.exec(s);
+    var hms = [ Number(m[1]), null, null ];
+    if (/^pm/.test(next) && hms[0] < 12) hms[0] += 12;
+    if (m[2]) hms[1] = Number(m[2]);
+    if (m[3]) hms[2] = Number(m[3]);
+    if (hms[0] > floorup(hms[0])) {
+        hms[1] = floorup((hms[0] - floorup(hms[0])) * 60);
+        hms[0] = floorup(hms[0]);
+    }
+    if (hms[1] > floorup(hms[1])) {
+        hms[2] = floorup((hms[1] - floorup(hms[1])) * 60);
+        hms[1] = floorup(hms[1]);
+    }
+    return hms;
+}
+
+function floorup (x) {
+    return Math.floor(Math.round(x * 1e6) / 1e6);
 }
